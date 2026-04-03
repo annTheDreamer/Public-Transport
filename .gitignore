@@ -30,6 +30,7 @@ publish/
 *.mdf
 *.ldf
 *.sqlite
+appsettings.Development.json
 
 # OS generated
 Thumbs.db
