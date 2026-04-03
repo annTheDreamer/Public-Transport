@@ -1,0 +1,41 @@
+# Build Folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider files (if ever)
+.idea/
+
+# Resharper
+_ReSharper*/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Publish output
+publish/
+
+# Logs
+*.log
+
+# Database / local config
+*.mdf
+*.ldf
+*.sqlite
+
+# OS generated
+Thumbs.db
+.DS_Store
+
+# Others
+*.pdb
+*.exe
+*.dll
