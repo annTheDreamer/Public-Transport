@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using Microsoft.Data.SqlClient;
+using Public_Transport.Factories;
 using Public_Transport.Interfaces;
 
 namespace Public_Transport.Repositories
@@ -106,76 +108,51 @@ namespace Public_Transport.Repositories
                     batteryCapacity = (double)reader["BatteryCapacity"];
                 }
 
-                // TO DO: move vehicle creation to different method
-                switch (vehicleType)
-                {
-                    case VehicleType.Bus:
-                        allVehicles.Add(
-                            new Bus(
-                                id,
-                                model,
-                                capacity,
-                                RequireValue(fuelConsumption, "FuelConsumption", id)
-                            )
-                        );
-                        break;
-
-                    case VehicleType.ElectricBus:
-                        allVehicles.Add(
-                            new ElectricBus(
-                                id,
-                                model,
-                                capacity,
-                                RequireValue(batteryCapacity, "BatteryCapacity", id)
-                            )
-                        );
-                        break;
-
-                    case VehicleType.Metro:
-                        allVehicles.Add(
-                            new Metro(
-                                id,
-                                model,
-                                capacity,
-                                RequireValue(batteryCapacity, "BatteryCapacity", id)
-                            )
-                        );
-                        break;
-
-                    case VehicleType.Tram:
-                        allVehicles.Add(
-                            new Tram(
-                                id,
-                                model,
-                                capacity,
-                                RequireValue(batteryCapacity, "BatteryCapacity", id)
-                            )
-                        );
-                        break;
-
-                    default:
-                        throw new InvalidOperationException(
-                            $"Unsupported vehicle type: {vehicleType}"
-                        );
-                }
+                AddVehicleToList(
+                    allVehicles,
+                    vehicleType,
+                    id,
+                    model,
+                    capacity,
+                    fuelConsumption,
+                    batteryCapacity
+                );
             }
 
             return allVehicles;
         }
 
         // Refuel
-        // Charge
-
-        private static double RequireValue(double? value, string fieldName, int vehicleId)
+        private void Refuel(IRefuelable refuelable, double liters)
         {
-            if (value is null)
-            {
-                throw new InvalidOperationException(
-                    $"Vehicle with Id {vehicleId} does not have {fieldName} value in the database."
-                );
-            }
+            throw new NotImplementedException();
+        }
 
-            return value.Value;
+        // Charge
+        private void Charge(IElectric electric, double kwh)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void AddVehicleToList(
+            List<Vehicle> allVehicles,
+            VehicleType vehicleType,
+            int id,
+            string model,
+            double capacity,
+            double? fuelConsumption,
+            double? batteryCapacity
+        )
+        {
+            var vehicle = VehicleFactory.CreateVehicle(
+                vehicleType,
+                id,
+                model,
+                capacity,
+                fuelConsumption,
+                batteryCapacity
+            );
+            allVehicles.Add(vehicle);
         }
     }
 }

@@ -13,7 +13,7 @@ public abstract class ElectricVehicle : Vehicle, IElectric
     )
         : base(id, model, capacity, type)
     {
-        BatteryCapacity = capacity;
+        BatteryCapacity = batteryCapacity;
     }
 
     protected ElectricVehicle(
@@ -24,7 +24,7 @@ public abstract class ElectricVehicle : Vehicle, IElectric
     )
         : base(model, capacity, type)
     {
-        BatteryCapacity = capacity;
+        BatteryCapacity = batteryCapacity;
     }
 
     public abstract void Charge(double kwh);

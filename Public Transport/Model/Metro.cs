@@ -8,6 +8,14 @@
 
     public override void Charge(double kwh)
     {
-        throw new NotImplementedException();
+        var capacity = this.Capacity;
+        if (kwh > capacity)
+            throw new ArgumentOutOfRangeException(
+                $"The capacity of {nameof(this.Model)} is {capacity}."
+            );
+
+        Console.WriteLine(
+            $"{nameof(this.Model)} was recharged - battery capacity increased by {kwh} hwh."
+        );
     }
 }
