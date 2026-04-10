@@ -35,7 +35,7 @@ namespace Public_Transport.Services
             _repository.AddVehicle(vehicle);
         }
 
-        public List<VehicleType> GetSupportedVehicles() => Enum.GetValues<VehicleType>().ToList();
+        // TODO: Get all vehicles
 
         public void RefuelVehicle(IRefuelable refuelable, double liters)
         {

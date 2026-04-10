@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Public_Transport.Services;
 
 namespace Public_Transport.UI
 {
     public class ConsoleUI
     {
+        private VehicleService _vehicleService;
         private Dictionary<int, string> _menuOptions = new Dictionary<int, string>
         {
             { 1, "Add Vehicle" },
@@ -14,6 +16,11 @@ namespace Public_Transport.UI
             { 4, "Charge Vehicle" },
             { 5, "Exit" },
         };
+
+        public ConsoleUI(VehicleService vehicleService)
+        {
+            _vehicleService = vehicleService;
+        }
 
         public string GetUserInput() => Console.ReadLine() ?? "";
 
@@ -28,6 +35,98 @@ namespace Public_Transport.UI
             foreach (var menuOption in _menuOptions)
             {
                 Console.WriteLine($"{menuOption.Key}. {menuOption.Value}");
+            }
+        }
+
+        public Dictionary<int, string> GetMenuOptions() => _menuOptions;
+
+        public List<VehicleType> GetSupportedVehicles() => Enum.GetValues<VehicleType>().ToList();
+
+        public void AddVehicle()
+        {
+            var vehicleType = SelectVehicleType();
+            var model = GetVehicleModel();
+            var capacity = GetVehicleProperty("capacity");
+            EnergyType energyType;
+            double? fuelConsumption;
+            double? batteryCapacity;
+
+            if (!VehicleTypeInfo.energyType.TryGetValue(vehicleType, out energyType))
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(vehicleType)} is not supported");
+            }
+
+            if (energyType == EnergyType.Fuel)
+            {
+                fuelConsumption = GetVehicleProperty("fuel consumption");
+                batteryCapacity = null;
+            }
+            else
+            {
+                batteryCapacity = GetVehicleProperty("battery capacity");
+                fuelConsumption = null;
+            }
+
+            _vehicleService.AddVehicle(
+                vehicleType,
+                model,
+                capacity,
+                fuelConsumption,
+                batteryCapacity
+            );
+            Console.WriteLine("Vehicle added successfully.");
+        }
+
+        public VehicleType SelectVehicleType()
+        {
+            var listOfVehicles = GetSupportedVehicles();
+            Console.WriteLine("What kind of vehicle would you like to add?");
+            while (true)
+            {
+                Console.WriteLine("We currently support the following types of vehicles:");
+                Console.WriteLine(string.Join(", ", listOfVehicles));
+                Console.WriteLine();
+                Console.WriteLine("Please type one of the options exactly as shown above:");
+                Console.WriteLine();
+                var userInput = Console.ReadLine();
+                var isTypeValid = Enum.TryParse<VehicleType>(
+                    userInput,
+                    ignoreCase: true,
+                    out var vehicleType
+                );
+                if (isTypeValid)
+                    return vehicleType;
+                else
+                    Console.WriteLine(
+                        $"Unfortunately, we don't support {userInput} as a vehicle type."
+                    );
+            }
+        }
+
+        public string GetVehicleModel()
+        {
+            Console.WriteLine("Please enter the vehicle model");
+            var userInput = GetUserInput();
+            return userInput;
+        }
+
+        private double? IsDouble(string userInput) =>
+            double.TryParse(userInput, out double result) ? result : null;
+
+        public double GetVehicleProperty(string property)
+        {
+            while (true)
+            {
+                Console.WriteLine($"Please enter the {property} of the vehicle you want to add:");
+                var userInput = GetUserInput();
+                var isValueDouble = IsDouble(userInput);
+
+                if (isValueDouble is null)
+                    Console.WriteLine(
+                        $"Invalid {property} value. Please enter a valid {property} value."
+                    );
+                else
+                    return isValueDouble.Value;
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Public_Transport.App;
 using Public_Transport.Repositories;
 using Public_Transport.Services;
 using Public_Transport.UI;
@@ -13,8 +14,8 @@ string connectionString = appConfiguration.GetConnectionString("PublicTransportD
 
 var sqlRepository = new SqlVehicleRepository(connectionString);
 var vehicleService = new VehicleService(sqlRepository);
-var consoleUi = new ConsoleUI();
+var consoleUi = new ConsoleUI(vehicleService);
 
-var vehicles = sqlRepository.GetVehicles();
-consoleUi.PrintMenuOptions();
+var app = new PublicTransportApp(consoleUi);
+app.Start();
 Console.WriteLine();
