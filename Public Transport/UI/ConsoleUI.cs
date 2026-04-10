@@ -8,6 +8,7 @@ namespace Public_Transport.UI
     public class ConsoleUI
     {
         private VehicleService _vehicleService;
+        private TablePrinter _tablePrinter = new TablePrinter();
         private Dictionary<int, string> _menuOptions = new Dictionary<int, string>
         {
             { 1, "Add Vehicle" },
@@ -75,6 +76,21 @@ namespace Public_Transport.UI
                 batteryCapacity
             );
             Console.WriteLine("Vehicle added successfully.");
+        }
+
+        public void PrintAllVehicles()
+        {
+            var allVehicles = _vehicleService.GetAllVehicles();
+            Console.WriteLine();
+            _tablePrinter.PrintTable(
+                allVehicles,
+                "Id",
+                "Model",
+                "Capacity",
+                "FuelConsumption",
+                "BatteryCapacity"
+            );
+            Console.WriteLine();
         }
 
         public VehicleType SelectVehicleType()

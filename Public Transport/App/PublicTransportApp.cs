@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Public_Transport.UI;
+﻿using Public_Transport.UI;
 
 namespace Public_Transport.App
 {
@@ -40,7 +37,7 @@ namespace Public_Transport.App
                             _consoleUi.AddVehicle();
                             break;
                         case 2:
-                            Console.WriteLine("User wants to see all vehicles");
+                            _consoleUi.PrintAllVehicles();
                             break;
                         case 3:
                             Console.WriteLine("User wants to refuel a vehicle");

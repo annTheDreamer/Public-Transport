@@ -18,11 +18,10 @@ public class TablePrinter
         var properties = typeof(T).GetProperties();
         var headers = new List<string>();
         var rows = new List<List<string>>();
-        var selectedProperties = new List<PropertyInfo>();
         var columnWidths = new List<int>();
 
-        BuildHeader<T>(properties, headers, selectedProperties, propertyNames);
-        rows = BuildRows<T>(items, selectedProperties);
+        BuildHeader(headers, propertyNames);
+        rows = BuildRows<T>(items, headers);
         columnWidths = CalculateColumnWidths(headers, rows);
 
         PrintHorizontalSeparator(columnWidths);
@@ -53,54 +52,24 @@ public class TablePrinter
         Console.WriteLine();
     }
 
-    /// <summary>
-    /// Builds a header by adding the specified property names to the headers list and tracks the corresponding properties.
-    /// </summary>
-    /// <remarks>All specified property names must exist in the provided properties array. The method ensures that only valid property names are added to the headers and selected properties lists.</remarks>
-    /// <param name="properties">An array of PropertyInfo objects to search for properties matching the specified names.</param>
-    /// <param name="headers">A list to which the names of the found properties are added.</param>
-    /// <param name="selectedProperties">A list to which the PropertyInfo objects corresponding to the specified property names are added.</param>
-    /// <param name="propertyNames">An array of property names to be added to the headers and selected properties lists.</param>
-    /// <exception cref="ArgumentException">Thrown if any of the specified property names do not match a property in the properties array.</exception>
-    private void BuildHeader<T>(
-        PropertyInfo[] properties,
-        List<string> headers,
-        List<PropertyInfo> selectedProperties,
-        params string[] propertyNames
-    )
+    private void BuildHeader(List<string> headers, params string[] propertyNames)
     {
         foreach (var propertyName in propertyNames)
         {
-            PropertyInfo? propertyPresent = null;
-            foreach (var property in properties)
-            {
-                if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                {
-                    headers.Add(property.Name);
-                    propertyPresent = property;
-                    selectedProperties.Add(propertyPresent);
-                    break;
-                }
-            }
-            if (propertyPresent is null)
-                throw new ArgumentException(
-                    $"Property '{propertyName}' does not exist on type {typeof(T).Name}"
-                );
+            headers.Add(propertyName);
         }
     }
 
-    private List<List<string>> BuildRows<T>(
-        IEnumerable<T> items,
-        List<PropertyInfo> selectedProperties
-    )
+    private List<List<string>> BuildRows<T>(IEnumerable<T> items, List<string> headers)
     {
         var rows = new List<List<string>>();
         foreach (var item in items)
         {
             var rowData = new List<string>();
-            foreach (var property in selectedProperties)
+            foreach (var property in headers)
             {
-                var value = property.GetValue(item);
+                var propertyInfo = item?.GetType().GetProperty(property);
+                var value = propertyInfo?.GetValue(item);
                 rowData.Add(value?.ToString() ?? "");
             }
             rows.Add(rowData);

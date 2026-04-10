@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using Public_Transport.Factories;
+﻿using Public_Transport.Factories;
 using Public_Transport.Interfaces;
 using Public_Transport.Repositories;
 
@@ -35,7 +31,7 @@ namespace Public_Transport.Services
             _repository.AddVehicle(vehicle);
         }
 
-        // TODO: Get all vehicles
+        public List<Vehicle> GetAllVehicles() => _repository.GetVehicles();
 
         public void RefuelVehicle(IRefuelable refuelable, double liters)
         {
