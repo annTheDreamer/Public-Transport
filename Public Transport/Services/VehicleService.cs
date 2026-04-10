@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Public_Transport.Factories;
+using Public_Transport.Interfaces;
 using Public_Transport.Repositories;
 
 namespace Public_Transport.Services
@@ -35,5 +36,15 @@ namespace Public_Transport.Services
         }
 
         public List<VehicleType> GetSupportedVehicles() => Enum.GetValues<VehicleType>().ToList();
+
+        public void RefuelVehicle(IRefuelable refuelable, double liters)
+        {
+            refuelable.Refuel(liters);
+        }
+
+        public void ChargeVehicle(IElectric electric, double kwh)
+        {
+            electric.Charge(kwh);
+        }
     }
 }

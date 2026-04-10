@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Public_Transport.Repositories;
 using Public_Transport.Services;
+using Public_Transport.UI;
 
 var appConfiguration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -12,6 +13,8 @@ string connectionString = appConfiguration.GetConnectionString("PublicTransportD
 
 var sqlRepository = new SqlVehicleRepository(connectionString);
 var vehicleService = new VehicleService(sqlRepository);
+var consoleUi = new ConsoleUI();
 
 var vehicles = sqlRepository.GetVehicles();
+consoleUi.PrintMenuOptions();
 Console.WriteLine();
