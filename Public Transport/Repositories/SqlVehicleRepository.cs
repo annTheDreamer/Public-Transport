@@ -17,7 +17,6 @@ namespace Public_Transport.Repositories
             _sqlConnection = connectionString;
         }
 
-        // Add
         public void AddVehicle(Vehicle vehicle)
         {
             using var connection = new SqlConnection(_sqlConnection);
@@ -52,7 +51,6 @@ namespace Public_Transport.Repositories
             command.ExecuteNonQuery();
         }
 
-        // Get all vehicles
         public List<Vehicle> GetVehicles()
         {
             var allVehicles = new List<Vehicle>();
@@ -120,6 +118,72 @@ namespace Public_Transport.Repositories
             }
 
             return allVehicles;
+        }
+
+        // Get Vehicle by Id
+        public Vehicle? GetVehicleById(int id)
+        {
+            using var connection = new SqlConnection(_sqlConnection);
+            connection.Open();
+
+            string sql =
+                @"
+                SELECT [Id]
+                    ,[Model]
+                    ,[Capacity]
+                    ,[VehicleType]
+                    ,[FuelConsumption]
+                    ,[BatteryCapacity]
+                FROM [Vehicles]
+                WHERE [Id] = @Id";
+
+            using var command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@Id", id);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                var model = ((string)reader["Model"]).Trim();
+                if (string.IsNullOrWhiteSpace(model))
+                    throw new InvalidOperationException(
+                        $"Vehicle with id {id} does not have Model value in the database."
+                    );
+
+                var capacity = (double)reader["Capacity"];
+
+                // Handling vehicle types as enum - needed for creating the right class derived from Vehicle
+                var vehicleTypeString = reader["VehicleType"].ToString()?.Trim();
+
+                if (!Enum.TryParse<VehicleType>(vehicleTypeString, out var vehicleType))
+                {
+                    throw new InvalidOperationException(
+                        $"Invalid vehicle type present in database: '{vehicleTypeString}'"
+                    );
+                }
+
+                // Handling nullable fields
+                double? fuelConsumption = null;
+                if (reader["FuelConsumption"] != DBNull.Value)
+                {
+                    fuelConsumption = (double)reader["FuelConsumption"];
+                }
+
+                double? batteryCapacity = null;
+                if (reader["BatteryCapacity"] != DBNull.Value)
+                {
+                    batteryCapacity = (double)reader["BatteryCapacity"];
+                }
+
+                return VehicleFactory.CreateVehicle(
+                    vehicleType,
+                    id,
+                    model,
+                    capacity,
+                    fuelConsumption,
+                    batteryCapacity
+                );
+            }
+            return null;
         }
 
         // Refuel

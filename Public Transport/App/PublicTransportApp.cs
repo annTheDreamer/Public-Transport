@@ -40,7 +40,7 @@ namespace Public_Transport.App
                             _consoleUi.PrintAllVehicles();
                             break;
                         case 3:
-                            Console.WriteLine("User wants to refuel a vehicle");
+                            _consoleUi.RefuelVehicle();
                             break;
                         case 4:
                             Console.WriteLine("User wants to recharge a vehicle");

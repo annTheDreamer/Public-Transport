@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Public_Transport.Interfaces;
 using Public_Transport.Services;
 
 namespace Public_Transport.UI
@@ -93,6 +94,18 @@ namespace Public_Transport.UI
             Console.WriteLine();
         }
 
+        public IEnumerable<Vehicle> PrintAllRefuelables()
+        {
+            var refuelables = _vehicleService
+                .GetAllVehicles()
+                .Where(vehicle =>
+                    VehicleTypeInfo.energyType[vehicle.GetVehicleType()] == EnergyType.Fuel
+                );
+            Console.WriteLine();
+            _tablePrinter.PrintTable(refuelables, "Id", "Model", "Capacity", "FuelConsumption");
+            return refuelables;
+        }
+
         public VehicleType SelectVehicleType()
         {
             var listOfVehicles = GetSupportedVehicles();
@@ -143,6 +156,49 @@ namespace Public_Transport.UI
                     );
                 else
                     return isValueDouble.Value;
+            }
+        }
+
+        public void RefuelVehicle()
+        {
+            var refuelables = PrintAllRefuelables();
+            Console.WriteLine();
+            Console.WriteLine("Please enter the ID of the vehicle you want to be refueled:");
+            var id = GetUserInput();
+            var isIdValid = IsIdValid(id, refuelables);
+
+            if (isIdValid)
+            {
+                var vehicle = _vehicleService.GetVehicleById(int.Parse(id));
+                if (vehicle is null)
+                    throw new ArgumentNullException("No vehicle found.");
+                else
+                {
+                    Console.WriteLine(
+                        "Please enter the number of liters you want the vehicle to be refueled:"
+                    );
+                    var liters = GetUserInput();
+                    if (double.TryParse(liters, out double parsedLiters))
+                    {
+                        var refuelable = (IRefuelable)vehicle;
+                        refuelable.Refuel(parsedLiters);
+                    }
+                    else
+                        Console.WriteLine($"The entered amount of {liters} liters is not valid.");
+                }
+            }
+        }
+
+        public bool IsIdValid(string id, IEnumerable<Vehicle> vehicles)
+        {
+            if (!int.TryParse(id, out int parsedId))
+                throw new ArgumentException("The entered ID is not a valid number.");
+            else
+            {
+                var isVehiclePresent = vehicles.Any(vehicle => vehicle.Id == parsedId);
+                if (!isVehiclePresent)
+                    Console.WriteLine("The entered ID is not in the provided list.");
+                return isVehiclePresent;
             }
         }
     }

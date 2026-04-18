@@ -33,6 +33,8 @@ namespace Public_Transport.Services
 
         public List<Vehicle> GetAllVehicles() => _repository.GetVehicles();
 
+        public Vehicle? GetVehicleById(int id) => _repository.GetVehicleById(id);
+
         public void RefuelVehicle(IRefuelable refuelable, double liters)
         {
             refuelable.Refuel(liters);
