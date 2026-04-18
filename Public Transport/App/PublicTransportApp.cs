@@ -43,7 +43,7 @@ namespace Public_Transport.App
                             _consoleUi.RefuelVehicle();
                             break;
                         case 4:
-                            Console.WriteLine("User wants to recharge a vehicle");
+                            _consoleUi.RechargeVehicle();
                             break;
                         case 5:
                             Console.WriteLine("Goodbye, see you soon!");

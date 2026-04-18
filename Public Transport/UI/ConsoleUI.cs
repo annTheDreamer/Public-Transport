@@ -106,6 +106,18 @@ namespace Public_Transport.UI
             return refuelables;
         }
 
+        public IEnumerable<Vehicle> PrintAllRechargeables()
+        {
+            var rechargeables = _vehicleService
+                .GetAllVehicles()
+                .Where(vehicle =>
+                    VehicleTypeInfo.energyType[vehicle.GetVehicleType()] == EnergyType.Electric
+                );
+            Console.WriteLine();
+            _tablePrinter.PrintTable(rechargeables, "Id", "Model", "Capacity", "BatteryCapacity");
+            return rechargeables;
+        }
+
         public VehicleType SelectVehicleType()
         {
             var listOfVehicles = GetSupportedVehicles();
@@ -159,34 +171,83 @@ namespace Public_Transport.UI
             }
         }
 
-        public void RefuelVehicle()
-        {
-            var refuelables = PrintAllRefuelables();
-            Console.WriteLine();
-            Console.WriteLine("Please enter the ID of the vehicle you want to be refueled:");
-            var id = GetUserInput();
-            var isIdValid = IsIdValid(id, refuelables);
+        public void RefuelVehicle() => ResupplyVehicle(EnergyType.Fuel);
 
-            if (isIdValid)
+        public void RechargeVehicle() => ResupplyVehicle(EnergyType.Electric);
+
+        public void ResupplyVehicle(EnergyType energyType)
+        {
+            switch (energyType)
             {
-                var vehicle = _vehicleService.GetVehicleById(int.Parse(id));
-                if (vehicle is null)
-                    throw new ArgumentNullException("No vehicle found.");
+                case EnergyType.Fuel:
+                    var refuelables = PrintAllRefuelables();
+                    var refuelablesId = GetAndValidateIdFrom(refuelables);
+                    if (refuelablesId is not null)
+                    {
+                        GetResupplyAmount(refuelablesId.Value, EnergyType.Fuel);
+                    }
+                    Console.WriteLine();
+                    break;
+                case EnergyType.Electric:
+                    var rechargeables = PrintAllRechargeables();
+                    var rechargeablesId = GetAndValidateIdFrom(rechargeables);
+                    if (rechargeablesId is not null)
+                    {
+                        GetResupplyAmount(rechargeablesId.Value, EnergyType.Electric);
+                    }
+                    Console.WriteLine();
+                    break;
+            }
+        }
+
+        public void GetResupplyAmount(int id, EnergyType energyType)
+        {
+            var vehicle = _vehicleService.GetVehicleById(id);
+            if (vehicle is null)
+                throw new ArgumentNullException("No vehicle found.");
+            else
+            {
+                string unit;
+                string action;
+                if (energyType == EnergyType.Fuel)
+                {
+                    unit = "liters";
+                    action = "refueled";
+                }
                 else
                 {
-                    Console.WriteLine(
-                        "Please enter the number of liters you want the vehicle to be refueled:"
-                    );
-                    var liters = GetUserInput();
-                    if (double.TryParse(liters, out double parsedLiters))
+                    unit = "kwhs";
+                    action = "recharged";
+                }
+
+                Console.WriteLine(
+                    $"Please enter the number of {unit} you want the vehicle to be {action}:"
+                );
+                var units = GetUserInput();
+                if (double.TryParse(units, out double parsedUnits))
+                {
+                    if (energyType == EnergyType.Fuel)
                     {
                         var refuelable = (IRefuelable)vehicle;
-                        refuelable.Refuel(parsedLiters);
+                        refuelable.Refuel(parsedUnits);
                     }
                     else
-                        Console.WriteLine($"The entered amount of {liters} liters is not valid.");
+                    {
+                        var rechargeable = (IElectric)vehicle;
+                        rechargeable.Charge(parsedUnits);
+                    }
                 }
+                else
+                    Console.WriteLine($"The entered amount of {units} {unit} is not valid.");
             }
+        }
+
+        public int? GetAndValidateIdFrom(IEnumerable<Vehicle> vehicles)
+        {
+            Console.WriteLine("Please enter the ID of the vehicle you want to be recharged:");
+            var id = GetUserInput();
+            var isIdValid = IsIdValid(id, vehicles);
+            return isIdValid ? int.Parse(id) : null;
         }
 
         public bool IsIdValid(string id, IEnumerable<Vehicle> vehicles)

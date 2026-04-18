@@ -35,14 +35,14 @@ namespace Public_Transport.Services
 
         public Vehicle? GetVehicleById(int id) => _repository.GetVehicleById(id);
 
-        public void RefuelVehicle(IRefuelable refuelable, double liters)
-        {
-            refuelable.Refuel(liters);
-        }
+        //public void RefuelVehicle(IRefuelable refuelable, double liters)
+        //{
+        //    refuelable.Refuel(liters);
+        //}
 
-        public void ChargeVehicle(IElectric electric, double kwh)
-        {
-            electric.Charge(kwh);
-        }
+        //public void ChargeVehicle(IElectric electric, double kwh)
+        //{
+        //    electric.Charge(kwh);
+        //}
     }
 }
